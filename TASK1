@@ -1,0 +1,122 @@
+#include <stdio.h>
+
+#define MAX_ACCOUNTS 100
+
+struct Account {
+    int account_number;
+    float balance;
+};
+
+void createAccount(struct Account accounts[], int *numAccounts);
+void checkAmount(struct Account accounts[], int numAccounts, int accountNumber);
+void transferMoney(struct Account accounts[], int numAccounts, int sourceAccount, int destinationAccount, float amount);
+
+int main() {
+    struct Account accounts[MAX_ACCOUNTS];
+    int numAccounts = 0;
+    int choice;
+
+    do {
+        printf("\nBank Management System\n");
+        printf("1. Create Account\n");
+        printf("2. Check Amount\n");
+        printf("3. Transfer Money\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                createAccount(accounts, &numAccounts);
+                break;
+            case 2:
+                if (numAccounts > 0) {
+                    int accountNumber;
+                    printf("Enter account number: ");
+                    scanf("%d", &accountNumber);
+                    checkAmount(accounts, numAccounts, accountNumber);
+                } else {
+                    printf("No accounts available. Please create an account first.\n");
+                }
+                break;
+            case 3:
+                if (numAccounts >= 2) {
+                    int sourceAccount, destinationAccount;
+                    float amount;
+                    printf("Enter source account number: ");
+                    scanf("%d", &sourceAccount);
+                    printf("Enter destination account number: ");
+                    scanf("%d", &destinationAccount);
+                    printf("Enter amount to transfer: ");
+                    scanf("%f", &amount);
+                    transferMoney(accounts, numAccounts, sourceAccount, destinationAccount, amount);
+                } else {
+                    printf("Insufficient accounts available for transfer. Please create at least two accounts.\n");
+                }
+                break;
+            case 4:
+                printf("Exiting the program. Goodbye!\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+
+    } while (choice != 4);
+
+    return 0;
+}
+
+void createAccount(struct Account accounts[], int *numAccounts) {
+    if (*numAccounts < MAX_ACCOUNTS) {
+        printf("Enter account number: ");
+        scanf("%d", &accounts[*numAccounts].account_number);
+        printf("Enter initial balance: ");
+        scanf("%f", &accounts[*numAccounts].balance);
+        (*numAccounts)++;
+        printf("Account created successfully.\n");
+    } else {
+        printf("Cannot create more accounts. Maximum limit reached.\n");
+    }
+}
+
+void checkAmount(struct Account accounts[], int numAccounts, int accountNumber) {
+    int i;
+    for (i = 0; i < numAccounts; i++) {
+        if (accounts[i].account_number == accountNumber) {
+            printf("Account balance for account %d: %.2f\n", accountNumber, accounts[i].balance);
+            return;
+        }
+    }
+    printf("Account not found.\n");
+}
+
+void transferMoney(struct Account accounts[], int numAccounts, int sourceAccount, int destinationAccount, float amount) {
+    int i, sourceIndex = -1, destinationIndex = -1;
+
+    // Find the index of source and destination accounts
+    for (i = 0; i < numAccounts; i++) {
+        if (accounts[i].account_number == sourceAccount) {
+            sourceIndex = i;
+        }
+        if (accounts[i].account_number == destinationAccount) {
+            destinationIndex = i;
+        }
+    }
+
+    // Check if both accounts exist
+    if (sourceIndex != -1 && destinationIndex != -1) {
+        // Check if the source account has sufficient balance
+        if (accounts[sourceIndex].balance >= amount) {
+            // Perform the transfer
+            accounts[sourceIndex].balance -= amount;
+            accounts[destinationIndex].balance += amount;
+            printf("Transfer successful. Updated balances:\n");
+            printf("Source Account %d: %.2f\n", sourceAccount, accounts[sourceIndex].balance);
+            printf("Destination Account %d: %.2f\n", destinationAccount, accounts[destinationIndex].balance);
+        } else {
+            printf("Insufficient balance in the source account.\n");
+        }
+    } else {
+        printf("Source or destination account not found.\n");
+    }
+}
